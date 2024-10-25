@@ -18,3 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])  
         user.save()
         return user
+
+
+class EmailSerializer(serializers.Serializer):
+    email_list = serializers.ListField(
+        child=serializers.EmailField(),
+        allow_empty=False
+    )
+
+    

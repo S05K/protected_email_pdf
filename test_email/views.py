@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer
+from .serializers import UserSerializer, EmailSerializer
 from rest_framework import status
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.conf import settings
 import os
-from .utils import create_pdf, validate_list
+from .utils import create_pdf
 from .tasks import send_email
 
 # Create your views here.
@@ -43,12 +43,12 @@ class UserView(APIView):
 class SendingEmailView(APIView):
     def post(self,request):
         data = request.data
-        lst = data.get("list",None)
-        validated_data = validate_list(lst)
-        if validated_data:
-            return Response({'Error':validated_data})
-        else:
+        lst = data.get("email_list",None)
+        serializer = EmailSerializer(data=request.data)
+        if serializer.is_valid():
             for i in lst:
                 pdf_file_path = create_pdf("test@123456", i)
                 send_email.delay(pdf_file_path,i)
             return Response({'data':"Email has been sent"})
+        else:
+            return Response({'Error':serializer.errors})

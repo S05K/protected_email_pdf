@@ -32,11 +32,4 @@ def create_pdf(user_password, user_email):
     return protected_pdf_path
 
 
-def validate_list(lst):
-    for i in lst:
-        if not isinstance(i,str):
-            return {'Error':"Emails are not valid."}
-        valid = re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', i)
-        if not valid:
-            return {'Error':"Emails are not valid."}
-        
+
