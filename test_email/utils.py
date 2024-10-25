@@ -1,6 +1,7 @@
 from fpdf import FPDF
 from PyPDF2 import PdfReader, PdfWriter
 import os
+import re
 
 def create_pdf(user_password, user_email):
     # Create a simple PDF
@@ -24,9 +25,18 @@ def create_pdf(user_password, user_email):
         # Add user password
         writer.encrypt(user_password)
         
-        # Save the protected PDF
         protected_pdf_path = f"{user_email}_welcome.pdf"
         with open(protected_pdf_path, "wb") as protected_pdf:
             writer.write(protected_pdf)
     
     return protected_pdf_path
+
+
+def validate_list(lst):
+    for i in lst:
+        if not isinstance(i,str):
+            return {'Error':"Emails are not valid."}
+        valid = re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', i)
+        if not valid:
+            return {'Error':"Emails are not valid."}
+        

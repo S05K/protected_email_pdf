@@ -7,7 +7,8 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.conf import settings
 import os
-from .utils import create_pdf
+from .utils import create_pdf, validate_list
+from .tasks import send_email
 
 # Create your views here.
 
@@ -38,3 +39,16 @@ class UserView(APIView):
         else:
             return Response(serializer.errors)
 
+
+class SendingEmailView(APIView):
+    def post(self,request):
+        data = request.data
+        lst = data.get("list",None)
+        validated_data = validate_list(lst)
+        if validated_data:
+            return Response({'Error':validated_data})
+        else:
+            for i in lst:
+                pdf_file_path = create_pdf("test@123456", i)
+                send_email.delay(pdf_file_path,i)
+            return Response({'data':"Email has been sent"})
